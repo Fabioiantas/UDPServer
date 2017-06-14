@@ -14,8 +14,7 @@ public class DataClient {
     private String ip;
     private Integer port;
     private String msg;
-
-    
+    private String senha;
     
     public String getUsername() {
         return username;

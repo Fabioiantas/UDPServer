@@ -5,7 +5,6 @@
  */
 package updserver;
 
-import com.sun.webkit.ThemeClient;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -66,6 +65,7 @@ public class ServerConnect extends Thread {
                   //InetAddress aHost = InetAddress.getByName(otable[i][0].toString());
                 switch(option){
                     case 1:
+                        String[] arrayMsg = clientmsg.trim().substring(2).split("#");
                         frame.AddRow(request.getAddress().toString(), request.getPort(),user);
                         out = null;
                         DataClient clientl = new DataClient();
