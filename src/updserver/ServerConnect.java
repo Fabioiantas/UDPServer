@@ -13,6 +13,7 @@ import java.net.SocketException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JTextArea;
+import jdk.nashorn.internal.objects.NativeString;
 
 /**
  *
@@ -26,6 +27,7 @@ public class ServerConnect extends Thread {
     DatagramPacket reply;
     JTextArea textArea;
     FrameServer frame;
+    String cliente[][] = new String[500][5];
     
     public ServerConnect(Integer port,FrameServer frame){
         this.port  = port;
@@ -48,6 +50,7 @@ public class ServerConnect extends Thread {
         String ip;
         InetAddress aHost = null;
         int cont = 0;
+        int cont1 = 0;
         String ipToSend;
         String erro = null;
         //InetAddress aHost = InetAddress.getByName(otable[i][0].toString());
@@ -62,12 +65,33 @@ public class ServerConnect extends Thread {
                 if(option != 3){
                     user   = clientmsg.substring(clientmsg.lastIndexOf("#")+1,clientmsg.length()).trim();
                 }
-                  //InetAddress aHost = InetAddress.getByName(otable[i][0].toString());
+                String[] msg = clientmsg.trim().split("#");
                 switch(option){
                     case 1:
-                        String[] arrayMsg = clientmsg.trim().substring(2).split("#");
-                        frame.AddRow(request.getAddress().toString(), request.getPort(),user);
-                        out = null;
+                        String[] arrayMsg = clientmsg.trim().split("#");
+                        for (int i = 0; i < arrayMsg.length; i++) {
+                            cont1++;
+                        }
+                        System.out.println("cont > "+cont1);
+                        if(cont1 != 3){
+                            cont1 = 0;
+                            System.out.println("Protocolo Inválido / Client msg: "+clientmsg);
+                            out = null;
+                            break;        
+                        }
+                        cont1 = 0;
+                        if (!frame.UserValidate(arrayMsg[1], arrayMsg[2])){
+                            out = "e1#".getBytes();
+                            String ip1 = request.getAddress().toString().substring(1);
+                            System.out.println("ip1: "+ip1);
+                            aHost = InetAddress.getByName(ip1);
+                            portToSend = request.getPort();
+                            break;
+                        }
+                        else{
+                            frame.AddRow(request.getAddress().toString(), request.getPort(),arrayMsg[1],arrayMsg[2]);
+                            out = null;
+                        }
                         DataClient clientl = new DataClient();
                         clientl.setIp(request.getAddress().toString());
                         clientl.setPort(request.getPort());
@@ -121,6 +145,10 @@ public class ServerConnect extends Thread {
                         Broadcast lout = new Broadcast();
                         lout.SendBroadcast(frame.GetUser(),aSocket,client,frame.Gettable());
                         out = null;
+                        break;
+                    case 6:
+                        String[] emailmsg = clientmsg.trim().split("#");
+                        
                         break;
                     default:
                         out = null;
