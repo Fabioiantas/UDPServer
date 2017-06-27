@@ -37,8 +37,22 @@ public class FrameServer extends javax.swing.JFrame {
     
     public void AddRow(String ip, Integer port,String user,String passw){
         String ipa = ip.substring(1, ip.length());
-        
         ((DefaultTableModel)TableList.getModel()).addRow(new String[]{ipa,port.toString(),user});  
+    }
+    
+    public void UpdateRowReport(String usuario){
+        int controle = 0;
+        for (int i = 0; i < TableReport.getRowCount(); i++) {
+            System.out.println("upate  "+TableReport.getValueAt(i, 0).toString());
+            if(usuario.equals(TableReport.getValueAt(i, 0))){
+                controle++;
+                int contador = Integer.parseInt(TableReport.getValueAt(i, 4).toString()) + 1;
+                ((DefaultTableModel)TableReport.getModel()).setValueAt(contador, i, 4);
+            }
+        }
+    }
+    public void AddRowReport(String user, String data,String h_inicio,String h_final,String cont){
+        ((DefaultTableModel)TableReport.getModel()).addRow(new String[]{user,data,h_inicio,h_final,cont});
     }
     
     public void RemoveRow(String user,String ip, Integer port){
@@ -68,14 +82,49 @@ public class FrameServer extends javax.swing.JFrame {
             validate = false;
         return validate;
     }
-    public String ReturnUser(String ip, String port){
-        String user = null;
+    public boolean UserOnline(String ip, Integer port){
+        int contador = 0;
         for (int i = 0; i < TableList.getRowCount(); i++) {
-            if(ip.equals(TableList.getValueAt(i, 0)) && port.equals(TableList.getValueAt(i, 1))){
-                user =  TableList.getValueAt(i, 2).toString();
+            if(ip.substring(1).equals(TableList.getValueAt(i, 0).toString()) && 
+               port.toString().equals(TableList.getValueAt(i, 1).toString())){
+               System.out.println("achou");
+               contador++;
             }
         }
-        return user;
+        if (contador > 0)
+            return true;
+        else
+            return false;
+    }
+    public String ReturnUser(String user){
+        int contador = 0;
+        String usuario = null;
+        for (int i = 0; i < TableList.getRowCount(); i++) {
+            if(user.equals(TableList.getValueAt(i, 2))){
+                contador++;
+                usuario =  TableList.getValueAt(i, 2).toString();
+            }
+        }
+        if (contador == 0)
+            return usuario;
+        else 
+            return "";
+    }
+    public String ReturnUser(String ip, Integer port){
+        int contador   = 0;
+        String porta   = port.toString();
+        String usuario = null;
+        String ip0 = ip.substring(1);
+        System.out.println("ip0: "+ip0);
+        System.out.println("pt0: "+port);
+        for (int i = 0; i < TableList.getRowCount(); i++) {
+            System.out.println("__> "+TableList.getValueAt(i, 0)+" + "+ TableList.getValueAt(i, 1));
+            if(ip0.equals(TableList.getValueAt(i, 0)) && porta.equals(TableList.getValueAt(i, 1))){
+                contador++;
+                usuario =  TableList.getValueAt(i, 2).toString();
+            }
+        }
+        return usuario;
     }
     public String GetUser(){
         Object[][] otable = new Object[TableList.getRowCount()][TableList.getColumnCount()];
@@ -300,10 +349,7 @@ public class FrameServer extends javax.swing.JFrame {
 
         TableReport.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null}
+
             },
             new String [] {
                 "Nome", "Data", "Hora Início", "Hora Final", "E-mails Resp."
@@ -367,7 +413,7 @@ public class FrameServer extends javax.swing.JFrame {
                 .addGap(14, 14, 14)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
+                    .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, 50, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)

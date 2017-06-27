@@ -10,6 +10,10 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JTextArea;
@@ -68,6 +72,7 @@ public class ServerConnect extends Thread {
                 String[] msg = clientmsg.trim().split("#");
                 switch(option){
                     case 1:
+                        System.out.println("userport1 "+request.getAddress().toString()+" = "+request.getPort());
                         String[] arrayMsg = clientmsg.trim().split("#");
                         for (int i = 0; i < arrayMsg.length; i++) {
                             cont1++;
@@ -83,14 +88,27 @@ public class ServerConnect extends Thread {
                         if (!frame.UserValidate(arrayMsg[1], arrayMsg[2])){
                             out = "e1#".getBytes();
                             String ip1 = request.getAddress().toString().substring(1);
-                            System.out.println("ip1: "+ip1);
                             aHost = InetAddress.getByName(ip1);
                             portToSend = request.getPort();
                             break;
                         }
                         else{
-                            frame.AddRow(request.getAddress().toString(), request.getPort(),arrayMsg[1],arrayMsg[2]);
-                            out = null;
+                            if (frame.ReturnUser(user) == null){
+                                frame.AddRow(request.getAddress().toString(), request.getPort(),arrayMsg[1],arrayMsg[2]);
+                                Date data = new Date();
+                                String dataStr = java.text.DateFormat.getDateInstance(DateFormat.MEDIUM).format(data);
+                                SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
+                                Date hora = Calendar.getInstance().getTime(); // Ou qualquer outra forma que tem
+                                String dataFormatada = sdf.format(hora);
+                                frame.AddRowReport(arrayMsg[1], dataStr, dataFormatada, null, "0");
+                                out = null;
+                            }else{
+                                out = "e2#".getBytes();
+                                String ip1 = request.getAddress().toString().substring(1);
+                                aHost = InetAddress.getByName(ip1);
+                                portToSend = request.getPort();
+                                break;
+                            }    
                         }
                         DataClient clientl = new DataClient();
                         clientl.setIp(request.getAddress().toString());
@@ -101,6 +119,7 @@ public class ServerConnect extends Thread {
                         l.SendBroadcast(frame.GetUser(),aSocket,clientl,frame.Gettable());
                         break;
                     case 3:
+                        System.out.println("userport3 "+request.getAddress().toString()+" = "+request.getPort());
                         String[] sendTo = clientmsg.trim().substring(2).split("#");
                         for (int i = 0; i < sendTo.length; i++) {
                             cont++;
@@ -147,8 +166,10 @@ public class ServerConnect extends Thread {
                         out = null;
                         break;
                     case 6:
+                        System.out.println("userport6 "+request.getAddress().toString()+" = "+request.getPort());
                         String[] emailmsg = clientmsg.trim().split("#");
-                        
+                        frame.UpdateRowReport( frame.ReturnUser(request.getAddress().toString(), request.getPort()));
+                        out = null;
                         break;
                     default:
                         out = null;
