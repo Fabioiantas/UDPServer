@@ -119,7 +119,6 @@ public class ServerConnect extends Thread {
                         l.SendBroadcast(frame.GetUser(),aSocket,clientl,frame.Gettable());
                         break;
                     case 3:
-                        System.out.println("userport3 "+request.getAddress().toString()+" = "+request.getPort());
                         String[] sendTo = clientmsg.trim().substring(2).split("#");
                         for (int i = 0; i < sendTo.length; i++) {
                             cont++;
@@ -155,6 +154,7 @@ public class ServerConnect extends Thread {
                             }
                         }
                     case 5:
+                        frame.UpdateRowReportLogoff(frame.ReturnUser(request.getAddress().toString(), request.getPort()));
                         frame.RemoveRow(user, request.getAddress().toString(), request.getPort());
                         DataClient client = new DataClient();
                         ip = request.getAddress().toString().substring(1,request.getAddress().toString().length());

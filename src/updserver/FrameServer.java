@@ -7,6 +7,9 @@ package updserver;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
@@ -48,6 +51,16 @@ public class FrameServer extends javax.swing.JFrame {
                 controle++;
                 int contador = Integer.parseInt(TableReport.getValueAt(i, 4).toString()) + 1;
                 ((DefaultTableModel)TableReport.getModel()).setValueAt(contador, i, 4);
+            }
+        }
+    }
+    public void UpdateRowReportLogoff(String usuario){
+         SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
+         Date hora = Calendar.getInstance().getTime(); // Ou qualquer outra forma que tem
+         String dataFormatada = sdf.format(hora);
+        for (int i = 0; i < TableReport.getRowCount(); i++) {
+            if(usuario.equals(TableReport.getValueAt(i, 0))){
+                ((DefaultTableModel)TableReport.getModel()).setValueAt(dataFormatada, i, 3);
             }
         }
     }
