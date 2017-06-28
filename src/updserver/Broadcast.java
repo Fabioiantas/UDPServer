@@ -5,6 +5,7 @@
  */
 package updserver;
 
+import java.awt.Frame;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -26,17 +27,18 @@ public class Broadcast {
     String username;
     String sendMessage = null;
    
-    
-    public void SendBroadcast(String lista,DatagramSocket aSocket,DataClient client,Object[][] otable){
-       
+    public void SendBroadcast(String lista,DatagramSocket aSocket,DataClient client,Object[][] otable,FrameServer frame){
         for(int i = 0; i < otable.length; i++){
             try { 
                 byte[] buffer = new byte[1000];
                 buffer = lista.getBytes();
                 InetAddress aHost = InetAddress.getByName(otable[i][0].toString());
                 toSend = new DatagramPacket(buffer, buffer.length, aHost, Integer.parseInt(otable[i][1].toString()));
-                System.out.println("Server for Client:"+sendMessage);
                 aSocket.send(toSend); 
+                if(lista.equals("5#")){
+                    frame.RemoveRow(otable[0][2].toString(), otable[i][0].toString(), Integer.parseInt(otable[i][1].toString()));
+                    System.out.println("ip:::"+otable[i][0].toString());
+                }
             }catch(SocketException ex) {
                 System.out.println("ERRO Send Broadcast1: "+ex.getMessage());
             }catch(UnknownHostException e){

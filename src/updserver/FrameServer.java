@@ -7,9 +7,14 @@ package updserver;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.SocketException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
@@ -37,17 +42,33 @@ public class FrameServer extends javax.swing.JFrame {
     public void SetDebug(String msg){
         TextDebug.setText(TextDebug.getText()+"\n"+msg);
     }
-    
+    public void CleanTable(){
+        DefaultTableModel model = (DefaultTableModel)TableList.getModel();
+        for (int i = 0; i < model.getRowCount(); i++) {
+            model.removeRow(i);
+        }
+        TableList.setModel(model);
+    }
     public void AddRow(String ip, Integer port,String user,String passw){
         String ipa = ip.substring(1, ip.length());
         ((DefaultTableModel)TableList.getModel()).addRow(new String[]{ipa,port.toString(),user});  
     }
     
+    public void ReportAll(){
+        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
+        Date hora = Calendar.getInstance().getTime(); // Ou qualquer outra forma que tem
+        String dataFormatada = sdf.format(hora);
+        for (int i = 0; i < TableReport.getRowCount(); i++) {
+            if (null == TableReport.getValueAt(i, 3))   
+                TableReport.setValueAt(dataFormatada, i, 3);
+        }
+    }
     public void UpdateRowReport(String usuario){
         int controle = 0;
         for (int i = 0; i < TableReport.getRowCount(); i++) {
             System.out.println("upate  "+TableReport.getValueAt(i, 0).toString());
-            if(usuario.equals(TableReport.getValueAt(i, 0))){
+            if(TableReport.getValueAt(i, 3) != null || !usuario.equals(TableReport.getValueAt(i, 0)) ){
+            } else {
                 controle++;
                 int contador = Integer.parseInt(TableReport.getValueAt(i, 4).toString()) + 1;
                 ((DefaultTableModel)TableReport.getModel()).setValueAt(contador, i, 4);
@@ -59,7 +80,7 @@ public class FrameServer extends javax.swing.JFrame {
          Date hora = Calendar.getInstance().getTime(); // Ou qualquer outra forma que tem
          String dataFormatada = sdf.format(hora);
         for (int i = 0; i < TableReport.getRowCount(); i++) {
-            if(usuario.equals(TableReport.getValueAt(i, 0))){
+            if(usuario.equals(TableReport.getValueAt(i, 0)) && TableReport.getValueAt(i, 3) == null){
                 ((DefaultTableModel)TableReport.getModel()).setValueAt(dataFormatada, i, 3);
             }
         }
@@ -73,7 +94,7 @@ public class FrameServer extends javax.swing.JFrame {
         String portstring = port.toString();
         DefaultTableModel dtm = (DefaultTableModel)TableList.getModel();
         for (int i = 0; i < TableList.getRowCount(); i++) {
-            if(ip.substring(ip.lastIndexOf('/')+1, ip.length()).equals(TableList.getValueAt(i, 0).toString())&& port == Integer.parseInt((String) TableList.getValueAt(i, 1))){
+            if(ip.equals(TableList.getValueAt(i, 0).toString())&& port == Integer.parseInt((String) TableList.getValueAt(i, 1))){
                 dtm.removeRow(i);
                 TableList.setModel(dtm);
                 break;
@@ -205,6 +226,7 @@ public class FrameServer extends javax.swing.JFrame {
         jButton1 = new javax.swing.JButton();
         jScrollPane4 = new javax.swing.JScrollPane();
         TableReport = new javax.swing.JTable();
+        jButton2 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setBackground(new java.awt.Color(204, 204, 204));
@@ -391,6 +413,13 @@ public class FrameServer extends javax.swing.JFrame {
             TableReport.getColumnModel().getColumn(3).setResizable(false);
         }
 
+        jButton2.setText("Desconectar todos");
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
@@ -415,14 +444,18 @@ public class FrameServer extends javax.swing.JFrame {
                     .addComponent(jPanel1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
                         .addGap(0, 0, Short.MAX_VALUE)
-                        .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 442, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jScrollPane4, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 442, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jButton2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 176, javax.swing.GroupLayout.PREFERRED_SIZE))))
                 .addContainerGap())
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jLabel2)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel2)
+                    .addComponent(jButton2))
                 .addGap(14, 14, 14)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -483,6 +516,18 @@ public class FrameServer extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_jButton1ActionPerformed
 
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        DatagramSocket aSocket;
+        try {
+            aSocket = new DatagramSocket();
+            Broadcast l = new Broadcast();
+            l.SendBroadcast("5#", aSocket, null, Gettable(), this);
+            ReportAll();
+        } catch (SocketException ex) {
+            Logger.getLogger(FrameServer.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_jButton2ActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -530,6 +575,7 @@ public class FrameServer extends javax.swing.JFrame {
     private javax.swing.JTextField TextStatus;
     private javax.swing.JTextField TextUserName;
     private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButton2;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
