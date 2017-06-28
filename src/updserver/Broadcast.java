@@ -37,7 +37,6 @@ public class Broadcast {
                 aSocket.send(toSend); 
                 if(lista.equals("5#")){
                     frame.RemoveRow(otable[0][2].toString(), otable[i][0].toString(), Integer.parseInt(otable[i][1].toString()));
-                    System.out.println("ip:::"+otable[i][0].toString());
                 }
             }catch(SocketException ex) {
                 System.out.println("ERRO Send Broadcast1: "+ex.getMessage());

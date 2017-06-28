@@ -65,7 +65,6 @@ public class ServerConnect extends Thread {
                 clientmsg = new String(buffer, 0, request.getLength());
                 System.out.println("Client message:"+clientmsg);
                 option = Integer.parseInt(clientmsg.substring(0,clientmsg.indexOf("#")).toString());
-                System.out.println("2");
                 if(option != 3){
                     user   = clientmsg.substring(clientmsg.lastIndexOf("#")+1,clientmsg.length()).trim();
                 }
@@ -76,7 +75,6 @@ public class ServerConnect extends Thread {
                         for (int i = 0; i < arrayMsg.length; i++) {
                             cont1++;
                         }
-                        System.out.println("cont > "+cont1);
                         if(cont1 != 3){
                             cont1 = 0;
                             System.out.println("Protocolo Inválido / Client msg: "+clientmsg);
@@ -138,6 +136,7 @@ public class ServerConnect extends Thread {
                                 datac.setIp(request.getAddress().toString());
                                 datac.setPort(request.getPort());
                                 sender.SendBroadcast("4#"+request.getAddress().toString().substring(1)+"#"+request.getPort()+"#"+sendTo[2], aSocket, datac, frame.Gettable(),frame);
+                                System.out.println("Server Message: "+"4#"+request.getAddress().toString().substring(1)+"#"+request.getPort()+"#"+sendTo[2]);
                                 break;
                             }
                             else{
@@ -148,7 +147,7 @@ public class ServerConnect extends Thread {
                                 ipToSend = request.getAddress().toString().substring(1);
                                 String messageToSend = "4#"+request.getAddress().toString().substring(1)+"#"+portReceive.toString()+"#"+message;
                                 out = messageToSend.getBytes();
-                                System.out.println("sendTo:"+messageToSend);
+                                System.out.println("Server Message: "+messageToSend);
                                 break;
                             }
                         }
@@ -167,9 +166,10 @@ public class ServerConnect extends Thread {
                         portToSend = request.getPort();
                         break;
                     case 6:
-                        System.out.println("userport6 "+request.getAddress().toString()+" = "+request.getPort());
                         String[] emailmsg = clientmsg.trim().split("#");
-                        frame.UpdateRowReport( frame.ReturnUser(request.getAddress().toString(), request.getPort()));
+                        String users = frame.ReturnUser2(request.getAddress().toString(), request.getPort());
+                        frame.AddList(users+";"+emailmsg[1]+";"+emailmsg[2]);
+                        frame.UpdateRowReport(frame.ReturnUser(request.getAddress().toString(), request.getPort()));
                         out = null;
                         break;
                     default:
